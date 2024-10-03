@@ -1,33 +1,44 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering.Universal.Internal;
+using UnityEngine.SceneManagement;
 
 public class Move : MonoBehaviour
 {
     // Start is called before the first frame update
     [SerializeField, Header("移動速度")]
     private float _speed;
-    // [SerializeField, Header("縦の画面サイズ(pixel)")]
-    // private float _width;
-    // [SerializeField, Header("横の画面サイズ(pixel)")]
-    // private float _height;
+    [SerializeField, Header("スタートポジション(x)")]
+    private float _startPosX;
+    [SerializeField, Header("スタートポジション(y)")]
+    private float _startPosY;
+    [SerializeField, Header("弾オブジェクト")]
+    GameObject _Bullet;
+    [SerializeField, Header("弾を発射するタイミング")]
+    private float shootTime;
 
-    // private Vector3 ScreenMaxRight = Camera.main.ScreenToWorldPoint(new Vector3(0f, 0, 1f));
-    // private Vector3 ScreenMaxLeft  = Camera.main.ScreenToWorldPoint(new Vector3(0f, 0, 1f));
+    private float shootCount;
 
-    float MaxRight = 2.5f;
-    float MaxLeft = -2.5f;
+    float MaxRight = 0.79f;
+    float MaxLeft = -20.79f;
 
     void Start()
     {
+        Vector2 _startPos;
+        _startPos.x = _startPosX;
+        _startPos.y = _startPosY;
 
+        transform.position = _startPos;
+        Debug.Log("Start");
     }
 
     // Update is called once per frame
     void Update()
     {
         _Move();
+        Shooting();
     }
 
     void _Move()
@@ -62,10 +73,24 @@ public class Move : MonoBehaviour
             moveY /= 1.4f;
         }
 
+        else if(Input.GetKey("p")){
+            SceneManager.LoadScene("PauseScene");
+        }
+
         Position.x += moveX;
         Position.y += moveY;
 
         transform.position = Position;
+    }
+
+        private void Shooting()
+    {
+        shootCount += Time.deltaTime;
+        if(shootCount < shootTime)  return;
+
+        GameObject bulletObj = Instantiate(_Bullet);    //プレハブ化されたオブジェクトを生成する(クローンを生成)
+        bulletObj.transform.position = transform.position;
+        shootCount = 0.0f;
     }
 }
 
